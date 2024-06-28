@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+<title>Патриот</title>
+<meta charset='UTF-8'>
+<meta name="viewport" content="width=device-width">
+<link rel='stylesheet' type='text/css' href='styles.css'>
+<script type='text/javascript' src='kumir.js'></script>
+<script type='text/javascript' src='robot.js'></script>
+<script type='text/javascript' src='highlight.js'></script>
+</head>
+<body>
+	<div id="app">
+		<div class="editor">
+			<textarea id='input' spellcheck='false'>использовать Очир&#13;&#10;алг&#13;&#10;нач&#13;&#10;&#13;&#10;кон</textarea>
+		</div>
+		<div class="messages">
+				<textarea id='output' disabled = 'true'></textarea>
+				<input type='button' value='Выполнить' id='button'>
+				<div id='error'></div>
+		</div>
+		<div class="canvas" id='robotBoard'>
+			<p>Достигните и закрасьте правый нижний угол поля.</p>
+			<p>Доступные команды:</p>
+			<p>влево, вправо, вниз, вверх</p>
+			<br>
+		</div>	
+	</div>
+
+<script type='text/javascript'>
+	if(screen.orientation.type.includes('portrait')) document.querySelector('#app').classList.add('mobile-app')
+	else document.querySelector('#app').classList.add('desktop-app')
+
+	input = document.getElementById('input');
+	output = document.getElementById('output');
+	button = document.getElementById('button');
+	robotBoard = document.getElementById('robotBoard');
+	startHighlight('input');
+	if (robot) robot.create(robotBoard);
+	document.addEventListener('print', function(e) {output.value+=e.detail;});
+	document.addEventListener('error', function(e) {
+		error.style.display = 'block';
+		error.innerHTML = '';
+		error.innerHTML+=e.detail;
+	});
+	button.onclick = function() {
+		output.value = '';
+		error.style.display = 'none';
+		kumir.start(input.value);
+	}
+
+	robot.create = function (container) {
+    for (let i = 0; i <= robot.VCELLS; i++) {
+        for (let j = 0; j <= robot.HCELLS; j++) {
+            robot.cells[i + '_' + j] = new Cell(j, i);
+            robot.walls['v' + i + '_' + j] = new Wall(j, i, true);
+            robot.walls['h' + i + '_' + j] = new Wall(j, i, false);
+        }
+    }
+    robot.canvas.width = (robot.CELL_SIZE + robot.WALL_SIZE) * robot.HCELLS + robot.WALL_SIZE;
+    robot.canvas.height = (robot.CELL_SIZE + robot.WALL_SIZE) * robot.VCELLS + robot.WALL_SIZE;
+    container.appendChild(robot.canvas);
+
+    robot.img.src = 'ochir.png';
+    robot.img.onload = function () {
+        robot.draw();
+    }
+
+    robot.generateRandomObstacles();
+}
+</script>
+
+</body>
+</html>
